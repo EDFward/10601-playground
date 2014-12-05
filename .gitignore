@@ -52,3 +52,12 @@ docs/_build/
 
 # PyBuilder
 target/
+
+.idea/
+*.csv
+*.pages
+*.pdf
+*.zip
+model/
+*.arff
+train.arff

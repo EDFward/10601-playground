@@ -4,9 +4,9 @@ from sklearn.ensemble import RandomForestClassifier
 
 from sklearn.externals import joblib
 
-from Classifier import MyClassifier
+from classifier import MyClassifier
 
-from Util import load_arff_dataset
+from util import load_pickled_dataset
 
 
 __author__ = 'junjiah'
@@ -17,19 +17,20 @@ class MyRandomForest(MyClassifier):
         self.random_forest = None
 
     def train(self, n_estimators=20, n_jobs=8):
-        labels, instances = load_arff_dataset('train.arff')
+        labels, instances = load_pickled_dataset('data/train.pkl')
 
-        self.random_forest = RandomForestClassifier(n_estimators=n_estimators, n_jobs=n_jobs)
+        self.random_forest = RandomForestClassifier(n_estimators=n_estimators, n_jobs=n_jobs,
+                                                    verbose=2)
         self.random_forest.fit(instances, labels)
 
         print "STATUS: model training done. "
         print "INFO: " + str(self.random_forest)
 
     def predict(self):
-        labels, instances = load_arff_dataset('test.arff')
+        labels, instances = load_pickled_dataset('data/test.pkl')
         return self.random_forest.predict(instances)
 
-    def store(self, file_path='model/rf_model'):
+    def save(self, file_path='model/rf_model'):
         joblib.dump(self.random_forest, file_path)
 
     def load(self, file_path='model/rf_model'):

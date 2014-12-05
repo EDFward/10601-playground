@@ -61,3 +61,4 @@ target/
 model/
 *.arff
 train.arff
+data

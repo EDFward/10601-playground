@@ -18,7 +18,7 @@ class MyClassifier(object):
         """
         raise NotImplementedError()
 
-    def store(self, file_path):
+    def save(self, file_path):
         """ Dump the model """
         raise NotImplementedError()
 

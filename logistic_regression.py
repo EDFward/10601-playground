@@ -3,8 +3,8 @@ import sys
 import theano
 import theano.tensor as T
 import time
-from Classifier import MyClassifier
-from Util import load_arff_dataset
+from classifier import MyClassifier
+from util import load_pickled_dataset
 
 FEATURE_NUMBER = 3072
 CLASS_NUMBER = 10
@@ -16,7 +16,7 @@ def load_theano_dataset(file_path):
     :param file_path: arff file path
     :return: x and y in shared variable form
     """
-    data_y, data_x = load_arff_dataset(file_path)
+    data_y, data_x = load_pickled_dataset(file_path)
     # change y to be 0~9
     for i in range(len(data_y)):
         data_y[i] -= 1
@@ -100,7 +100,7 @@ class MyLogisticRegression(MyClassifier):
         :param n_epochs: number of epochs
         :return: trained LR model
         """
-        train_set_x, train_set_y = load_theano_dataset('train.arff')
+        train_set_x, train_set_y = load_theano_dataset('data/train.pkl')
 
         y = T.ivector('y')
         index = T.iscalar()
@@ -145,7 +145,7 @@ class MyLogisticRegression(MyClassifier):
         Use trained LR classifier for predictions
         :return: predictions
         """
-        test_set_x, test_set_y = load_theano_dataset('test.arff')
+        test_set_x, test_set_y = load_theano_dataset('data/test.pkl')
 
         start_time = time.clock()
 
@@ -164,7 +164,7 @@ class MyLogisticRegression(MyClassifier):
             pred[i] += 1
         return pred
 
-    def store(self, file_path='./model/lr_model'):
+    def save(self, file_path='./model/lr_model'):
         from cPickle import dump, HIGHEST_PROTOCOL
 
         with file('./model/lr_model', 'wb') as f:

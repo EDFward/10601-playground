@@ -3,6 +3,7 @@ import sys
 import theano
 import theano.tensor as T
 import time
+import cPickle
 from classifier import MyClassifier
 from util import load_pickled_dataset
 
@@ -12,7 +13,7 @@ CLASS_NUMBER = 10
 
 def load_theano_dataset(file_path):
     """
-    Transform arff data to theano shared variables
+    Transform pickled data to theano shared variables
     :param file_path: arff file path
     :return: x and y in shared variable form
     """
@@ -105,8 +106,6 @@ class MyLogisticRegression(MyClassifier):
         y = T.ivector('y')
         index = T.iscalar()
 
-        # self.classifier = MyLogisticRegression(input=x, n_in=FEATURE_NUMBER, n_out=CLASS_NUMBER)
-
         cost = self.negative_log_likelihood(y)
 
         g_W = T.grad(cost=cost, wrt=self.W)
@@ -165,16 +164,12 @@ class MyLogisticRegression(MyClassifier):
         return pred
 
     def save(self, file_path='./model/lr_model'):
-        from cPickle import dump, HIGHEST_PROTOCOL
-
         with file('./model/lr_model', 'wb') as f:
-            dump(self, f, protocol=HIGHEST_PROTOCOL)
+            cPickle.dump(self, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
     def load(self, file_path='./model/lr_model'):
-        from cPickle import load
-
         with file(file_path, 'rb') as f:
-            model = load(f)
+            model = cPickle.load(f)
         # update computation graph components
         self.b, self.W = model.b, model.W
         self.x, self.y_pred, self.p_y_given_x = model.x, model.y_pred, model.p_y_given_x

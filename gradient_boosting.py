@@ -15,8 +15,8 @@ class MyGradientBoosting(MyClassifier):
     def __init__(self):
         self.gradient_boosting = None
 
-    def train(self, n_estimators=10, learning_rate=0.1):
-        labels, instances = load_pickled_dataset('data/train.pkl')
+    def train(self, data_path='data/train.pkl', n_estimators=10, learning_rate=0.1):
+        labels, instances = load_pickled_dataset(data_path)
         start_time = time.clock()
         self.gradient_boosting = GradientBoostingClassifier(loss='deviance', learning_rate=learning_rate,
                                                             n_estimators=n_estimators, subsample=0.3,
@@ -32,8 +32,8 @@ class MyGradientBoosting(MyClassifier):
         print "STATUS: model training done. elapsed time - %d seconds" % (end_time - start_time)
         print "INFO: " + str(self.gradient_boosting)
 
-    def predict(self):
-        labels, instances = load_pickled_dataset('data/test.pkl')
+    def predict(self, data_path='data/test.pkl'):
+        labels, instances = load_pickled_dataset(data_path)
         return self.gradient_boosting.predict(instances)
 
     def save(self, file_path='model/gbc_model'):

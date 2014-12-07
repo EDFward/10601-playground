@@ -13,17 +13,17 @@ class MySupportVectorMachine(MyClassifier):
     def __init__(self):
         self.svm = None
 
-    def train(self):
-        labels, instances = load_pickled_dataset('data/train.pkl')
+    def train(self, data_path='data/train.pkl', kernel='rbf'):
+        labels, instances = load_pickled_dataset(data_path)
 
-        self.svm = svm.SVC()
+        self.svm = svm.SVC(kernel=kernel)
         self.svm.fit(instances, labels)
 
         print "STATUS: model training done. "
         print "INFO: " + str(self.svm)
 
-    def predict(self):
-        labels, instances = load_pickled_dataset('data/test.pkl')
+    def predict(self, data_path='data/test.pkl'):
+        labels, instances = load_pickled_dataset(data_path)
         return self.svm.predict(instances)
 
     def save(self, file_path='model/svm_model'):

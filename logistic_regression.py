@@ -93,7 +93,7 @@ class MyLogisticRegression(MyClassifier):
         else:
             raise NotImplementedError()
 
-    def train(self, learning_rate=0.001, batch_size=100, n_epochs=3000):
+    def train(self, data_path='data/train.pkl', learning_rate=0.001, batch_size=100, n_epochs=3000):
         """
         Use Stochastic Gradient Descent to train LR model
         :param learning_rate: learning rate
@@ -101,7 +101,7 @@ class MyLogisticRegression(MyClassifier):
         :param n_epochs: number of epochs
         :return: trained LR model
         """
-        train_set_x, train_set_y = load_theano_dataset('data/train.pkl')
+        train_set_x, train_set_y = load_theano_dataset(data_path)
 
         y = T.ivector('y')
         index = T.iscalar()
@@ -139,12 +139,12 @@ class MyLogisticRegression(MyClassifier):
 
         print "STATUS: training done. elapsed time - %d seconds" % (end_time - start_time)
 
-    def predict(self):
+    def predict(self, data_path='data/test.pkl'):
         """
         Use trained LR classifier for predictions
         :return: predictions
         """
-        test_set_x, test_set_y = load_theano_dataset('data/test.pkl')
+        test_set_x, test_set_y = load_theano_dataset(data_path)
 
         start_time = time.clock()
 

@@ -6,13 +6,13 @@ class MyClassifier(object):
     Abstract class for all kinds of classifiers ;)
     """
 
-    def train(self, **kwargs):
+    def train(self, data_path, **kwargs):
         """
         Train the model
         """
         raise NotImplementedError()
 
-    def predict(self):
+    def predict(self, data_path):
         """
         Use the trained model to make predictions on test.arff
         """

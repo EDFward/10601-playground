@@ -16,8 +16,8 @@ class MyRandomForest(MyClassifier):
     def __init__(self):
         self.random_forest = None
 
-    def train(self, n_estimators=20, n_jobs=8):
-        labels, instances = load_pickled_dataset('data/train.pkl')
+    def train(self, data_path='data/train.pkl', n_estimators=20, n_jobs=8):
+        labels, instances = load_pickled_dataset(data_path)
 
         self.random_forest = RandomForestClassifier(n_estimators=n_estimators, n_jobs=n_jobs,
                                                     verbose=2)
@@ -26,8 +26,8 @@ class MyRandomForest(MyClassifier):
         print "STATUS: model training done. "
         print "INFO: " + str(self.random_forest)
 
-    def predict(self):
-        labels, instances = load_pickled_dataset('data/test.pkl')
+    def predict(self, data_path='data/test.pkl'):
+        labels, instances = load_pickled_dataset(data_path)
         return self.random_forest.predict(instances)
 
     def save(self, file_path='model/rf_model'):

@@ -6,7 +6,7 @@ from sklearn.externals import joblib
 
 from classifier import MyClassifier
 
-from util import load_pickled_dataset
+from feats_repr import load_pickled_dataset
 
 
 __author__ = 'junjiah'

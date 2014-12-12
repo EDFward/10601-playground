@@ -1,11 +1,13 @@
 import numpy
-import sys
 import theano
 import theano.tensor as T
+
+import sys
 import time
 import cPickle
 from classifier import MyClassifier
 from feats_repr import load_pickled_dataset
+
 
 FEATURE_NUMBER = 3072
 CLASS_NUMBER = 10

@@ -1,7 +1,7 @@
 from sklearn import svm
 from sklearn.externals import joblib
-import sys
 
+import sys
 from classifier import MyClassifier
 from feats_repr import load_pickled_dataset
 
@@ -34,6 +34,7 @@ class MySupportVectorMachine(MyClassifier):
 
     def write_results(self, predictions):
         super(MySupportVectorMachine, self).write(predictions, 'svm_prediction.csv')
+
 
 if __name__ == '__main__':
     if len(sys.argv) == 2 and sys.argv[1] == 'train':

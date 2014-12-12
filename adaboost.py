@@ -1,8 +1,7 @@
-import sys
-
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.externals import joblib
 
+import sys
 from classifier import MyClassifier
 from feats_repr import load_pickled_dataset
 

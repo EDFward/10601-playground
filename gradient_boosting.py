@@ -1,9 +1,8 @@
-import sys
-
 from sklearn.externals import joblib
 from sklearn.ensemble import GradientBoostingClassifier
-import time
 
+import sys
+import time
 from classifier import MyClassifier
 from feats_repr import load_pickled_dataset
 

@@ -1,10 +1,10 @@
-import cPickle
-
 import numpy as np
 from scipy.io.arff import loadarff
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.externals import joblib
 from sklearn.preprocessing import LabelBinarizer
+
+import cPickle
 
 
 __author__ = 'junjiah'
@@ -22,7 +22,7 @@ def load_arff_dataset(file_path):
     :param file_path: arff file path
     :return: labels and corresponding instances
     """
-    data, meta = loadarff(open(file_path, 'r'))
+    data, meta = loadarff(file(file_path, 'r'))
     labels = np.asarray([LABEL_MAP[name] for name in data['class']], dtype=np.int32)
     instances = np.array(data[meta.names()[:-1]])
     instances = np.asarray(instances.tolist(), dtype=np.float32)
@@ -109,7 +109,7 @@ def join_patches(patches, k_means, patch_num=16):
         whole_pic = patches[i:i + patch_num]
         # split to quadrants
 
-        # ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         #### TODO: following code only works for 8*8 patch!
         #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         upperleft = np.concatenate((whole_pic[:2], whole_pic[4:6]))

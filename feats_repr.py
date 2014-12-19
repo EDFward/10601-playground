@@ -43,9 +43,6 @@ def load_pickled_dataset(file_path, whitening=False):
         return labels, whitening(instances)
 
 
-# def sample_patches(instances, patch_size):
-
-
 def extract_patches(instances, patch_size=8):
     """
     Build patches from original 3072 features based on given patch size.

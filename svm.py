@@ -1,7 +1,8 @@
+import sys
+
 from sklearn import svm
 from sklearn.externals import joblib
 
-import sys
 from classifier import MyClassifier
 from feats_repr import load_pickled_dataset
 
@@ -13,10 +14,14 @@ class MySupportVectorMachine(MyClassifier):
     def __init__(self):
         self.svm = None
 
-    def train(self, data_path='data/train.pkl', kernel='rbf'):
+    def train(self, data_path='data/train.pkl', kernel='rbf', c=0.001):
         labels, instances = load_pickled_dataset(data_path)
 
-        self.svm = svm.SVC(kernel=kernel)
+        if kernel == 'linear':
+            self.svm = svm.LinearSVC(C=c, verbose=2)
+        else:
+            self.svm = svm.SVC(kernel=kernel, C=c, verbose=2)
+
         self.svm.fit(instances, labels)
 
         print "STATUS: model training done. "

@@ -1,10 +1,9 @@
+import cPickle
+
 import numpy as np
 from scipy.io.arff import loadarff
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.externals import joblib
-from sklearn.preprocessing import LabelBinarizer
-
-import cPickle
 
 
 __author__ = 'junjiah'
@@ -13,7 +12,6 @@ PIC_LENGTH = 32
 CHANNEL_LENGTH = 1024
 CLASSES = ('airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 LABEL_MAP = {v: k for k, v in dict(enumerate(CLASSES, 1)).items()}
-PIC_LENGTH = 32
 
 
 def load_arff_dataset(file_path):
@@ -43,6 +41,9 @@ def load_pickled_dataset(file_path, whitening=False):
         return labels, instances
     else:
         return labels, whitening(instances)
+
+
+# def sample_patches(instances, patch_size):
 
 
 def extract_patches(instances, patch_size=8):
@@ -92,7 +93,14 @@ def convert_pic(scaled_img_vec, pic_length=PIC_LENGTH):
     return np.asarray([np.asarray(cell, dtype=np.uint8).T for cell in zip(*i)])
 
 
-def join_patch_pic(patch_batch, patch_size=8):
+def convert_pic_in_patch(patch_batch, patch_size=8):
+    """
+    Convert a bunch of patches to an picture
+    :param patch_batch: patches to be combined, each with dimension patch_size
+    :param patch_size:
+    :return:
+    """
+
     def chunks(l, n):
         """ Yield successive n-sized chunks from l. """
         for i in xrange(0, len(l), n):
@@ -103,36 +111,40 @@ def join_patch_pic(patch_batch, patch_size=8):
     return pic
 
 
-def join_patches(patches, k_means, patch_num=16):
-    patch_feats = []
-    for i in xrange(0, len(patches), patch_num):
-        whole_pic = patches[i:i + patch_num]
-        # split to quadrants
+def feat_transform(instances, k_means, patch_size=8, stride=2):
+    """
+    Transform feature vectors using 3 channels to k-means representation
+    combining quadrants in original images
+    :param instances: original feature vectors
+    :param k_means: k_means clustering model
+    :return: transformed feature vector
+    """
+    if k_means.mean_distances is None:
+        print 'Mean distances in K means model not available, abort.'
+        return
 
-        #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        #### TODO: following code only works for 8*8 patch!
-        #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        upperleft = np.concatenate((whole_pic[:2], whole_pic[4:6]))
-        upperright = np.concatenate((whole_pic[2:4], whole_pic[6:8]))
-        bottomleft = np.concatenate((whole_pic[8:10], whole_pic[12:14]))
-        bottomright = np.concatenate((whole_pic[10:12], whole_pic[14:]))
-
-        patch_feats.extend(
-            np.concatenate([k_means.predict(i) for i in (upperleft, upperright, bottomleft, bottomright)]))
-
-
-    # generate indicator vector
-    l = LabelBinarizer()
-    patch_indicators = l.fit_transform(patch_feats)
+    k = len(k_means.mean_distances)
     feats = []
-    for i in xrange(0, len(patch_indicators), patch_num):
-        pic_feat = []
-        for j in range(4):
-            quadrant = patch_indicators[i + 4 * j: i + 4 * (j + 1)].sum(axis=0)
-            pic_feat.extend(quadrant)
-        feats.append(pic_feat)
 
-    return np.asarray(feats, dtype=np.float32)
+    for instance in instances:
+        pic_in_channels = instance.reshape(3, PIC_LENGTH, PIC_LENGTH)
+        iter_num = (PIC_LENGTH / 2 - patch_size) / stride + 1
+        feat = []
+        for i in range(2):
+            for j in range(2):
+                start_x, start_y = i * PIC_LENGTH / 2, j * PIC_LENGTH / 2
+                quadrant_patches = []
+                for i1 in range(iter_num):
+                    for j2 in range(iter_num):
+                        patch_x, patch_y = start_x + i1 * stride, start_y + j2 * stride
+                        patch = pic_in_channels[:, patch_x: patch_x + patch_size,
+                                patch_y: patch_y + patch_size].reshape(-1)
+                        quadrant_patches.append(patch)
+                quadrant_feature = np.maximum(np.zeros(k),
+                                              k_means.transform(quadrant_patches) - k_means.mean_distances).sum(axis=0)
+                feat.extend(quadrant_feature)
+        feats.append(feat)
+    return np.asarray(feats)
 
 
 def whitening(inst):
@@ -149,11 +161,14 @@ def whitening(inst):
 
 class KMeansFeatureTransformer(object):
     def __init__(self, patches, k=1500, model_path=None):
+        self.mean_distances = None
         if model_path is None:
             self.k_means = MiniBatchKMeans(n_clusters=k, compute_labels=False,
                                            reassignment_ratio=0, max_no_improvement=10, batch_size=10000,
                                            verbose=2)
             self.k_means.fit(patches)
+            # update mean distances
+            self.compute_mean_distances(patches)
         else:
             self.load(model_path)
 
@@ -162,6 +177,9 @@ class KMeansFeatureTransformer(object):
 
     def predict(self, patches):
         return self.k_means.predict(patches)
+
+    def compute_mean_distances(self, patches):
+        self.mean_distances = np.mean(self.k_means.transform(patches), axis=0)
 
     def save(self, file_path='model/k_means_model'):
         joblib.dump(self.k_means, file_path)
@@ -178,3 +196,9 @@ if __name__ == '__main__':
 
     # concatenate patches
     patches = np.concatenate((extract_patches(train_x), extract_patches(test_x)))
+
+    k_means = KMeansFeatureTransformer(None, model_path='model/k_means_model_full')
+    k_means.compute_mean_distances(patches)
+
+    train_x_prime = feat_transform(train_x, k_means)
+    test_x_prime = feat_transform(test_x, k_means)
